@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": [
+      "es2016.array.include",
       "dom",
       "dom.iterable",
       "esnext"

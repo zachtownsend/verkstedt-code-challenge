@@ -50,6 +50,7 @@ const RepoGrid = ({ repos, emptyMessage }: Props) => {
                             <Card.Description>
                                 <TextTruncate line={4} text={repo.description} element="div" />
                             </Card.Description>
+                            {repo.language && <p>{repo.language}</p>}
                         </Card.Content>
                         <Card.Content extra>
                             <Button as='div' labelPosition='left'>
