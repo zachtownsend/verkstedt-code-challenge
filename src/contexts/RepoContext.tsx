@@ -1,18 +1,26 @@
 import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import dayjs from 'dayjs';
 import axios, { AxiosRequestConfig } from 'axios';
-import { Repo, GithubResponse } from '../types';
+import { IRepo, IGithubResponse, IStarred } from '../types';
 
 interface ContextProps {
-    repos: Array<Repo>;
+    repos: Array<IRepo>;
     loading: boolean;
     weekStart: any;
+    starred: IStarred;
+    addStar(repo: IRepo): void;
+    removeStar(id: number): void;
+    isStarred(id: number): boolean;
 }
 
 const RepoContext = createContext<ContextProps>({
     repos: [],
     loading: true,
-    weekStart: dayjs().subtract(7, 'day')
+    weekStart: dayjs().subtract(7, 'day'),
+    starred: {},
+    addStar: () => {},
+    removeStar: () => {},
+    isStarred: () => false
 });
 
 interface Props {
@@ -20,7 +28,8 @@ interface Props {
 }
 
 export const RepoProvider = ({ children }: Props) => {
-    const [repos, setRepos] = useState<Array<Repo> | []>([]);
+    const [repos, setRepos] = useState<Array<IRepo> | []>([]);
+    const [starred, setStarred] = useState<IStarred>({});
     const [loading, setLoading] = useState<boolean>(true);
     const weekStart = dayjs().subtract(7, 'day');
 
@@ -35,10 +44,11 @@ export const RepoProvider = ({ children }: Props) => {
     }), [weekStart]);
 
     useEffect(() => {
+        // Fetch repos
         const fetchRepos = async () => {
             try {
                 const result = await axios(requestOptions);
-                const items: Repo[] = result.data.items.map(({
+                const items: IRepo[] = result.data.items.map(({
                     id,
                     name,
                     owner,
@@ -47,7 +57,7 @@ export const RepoProvider = ({ children }: Props) => {
                     description,
                     created_at,
                     updated_at,
-                }: GithubResponse) => ({
+                }: IGithubResponse) => ({
                     id,
                     name,
                     owner,
@@ -69,13 +79,51 @@ export const RepoProvider = ({ children }: Props) => {
         fetchRepos();
     }, []);
 
+    useEffect(() => {
+        // Bootstrap starred
+        const storedStars = localStorage.getItem('starred');
+
+        if (storedStars !== null ) {
+            const restoredStars = JSON.parse(storedStars);
+
+            if (Array.isArray(restoredStars) && restoredStars.length === 0) {
+                setStarred({});
+            } else {
+                setStarred(restoredStars);
+            }
+        }
+
+        return () => {
+            localStorage.setItem('starred', JSON.stringify(starred));
+        };
+    }, []);
+
+    const addStar = (repo: IRepo) => {
+        starred[repo.id] = repo;
+        setStarred({...starred});
+        localStorage.setItem('starred', JSON.stringify(starred));
+    };
+
+    const removeStar = (id: number) => {
+        delete starred[id];
+        setStarred({...starred});
+        localStorage.setItem('starred', JSON.stringify(starred));
+    };
+
+    const isStarred = (id: number) => {
+        return starred[id] !== undefined;
+    }
 
     return (
         <RepoContext.Provider
             value={{
                 repos,
                 loading,
-                weekStart
+                weekStart,
+                starred,
+                addStar,
+                removeStar,
+                isStarred
             }}
         >
             {children}

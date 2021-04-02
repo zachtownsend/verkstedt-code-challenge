@@ -1,4 +1,4 @@
-interface GithubOwner {
+interface IGithubOwner {
     login: string;
     id: number;
     node_id: string;
@@ -19,13 +19,13 @@ interface GithubOwner {
     site_admin: boolean;
 }
 
-export interface GithubResponse {
+export interface IGithubResponse {
     id: number;
     node_id: string;
     name: string;
     full_name: string;
     private: boolean;
-    owner: Owner;
+    owner: IGithubOwner;
     html_url: string;
     description: string;
     fork: boolean;
@@ -96,13 +96,13 @@ export interface GithubResponse {
     score: number;
 }
 
-interface RepoOwner {
+interface IRepoOwner {
     id: number;
     login: string;
     avatar_url: string;
 }
 
-export interface Repo {
+export interface IRepo {
     id: number;
     name: string;
     owner: IRepoOwner;
@@ -111,4 +111,8 @@ export interface Repo {
     description: string;
     created_at: string;
     updated_at: string;
+}
+
+export interface IStarred {
+    [key: number]: IRepo;
 }
