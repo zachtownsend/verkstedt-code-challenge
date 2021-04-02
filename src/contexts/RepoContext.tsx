@@ -4,10 +4,12 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { IRepo, IGithubResponse, IStarred } from '../types';
 
 interface ContextProps {
-    repos: Array<IRepo>;
+    repos: IRepo[];
+    languages: Array<string>;
     loading: boolean;
     weekStart: any;
     starred: IStarred;
+    filterByLanguage(language: string): IRepo[];
     addStar(repo: IRepo): void;
     removeStar(id: number): void;
     isStarred(id: number): boolean;
@@ -15,9 +17,11 @@ interface ContextProps {
 
 const RepoContext = createContext<ContextProps>({
     repos: [],
+    languages: [],
     loading: true,
     weekStart: dayjs().subtract(7, 'day'),
     starred: {},
+    filterByLanguage: () => [],
     addStar: () => {},
     removeStar: () => {},
     isStarred: () => false
@@ -31,6 +35,7 @@ export const RepoProvider = ({ children }: Props) => {
     const [repos, setRepos] = useState<Array<IRepo> | []>([]);
     const [starred, setStarred] = useState<IStarred>({});
     const [loading, setLoading] = useState<boolean>(true);
+    const [languages, setLanguages] = useState<Array<string>>([]);
     const weekStart = dayjs().subtract(7, 'day');
 
     const requestOptions: AxiosRequestConfig = useMemo(() => ({
@@ -48,25 +53,36 @@ export const RepoProvider = ({ children }: Props) => {
         const fetchRepos = async () => {
             try {
                 const result = await axios(requestOptions);
-                const items: IRepo[] = result.data.items.map(({
-                    id,
-                    name,
-                    owner,
-                    html_url,
-                    stargazers_count,
-                    description,
-                    created_at,
-                    updated_at,
-                }: IGithubResponse) => ({
-                    id,
-                    name,
-                    owner,
-                    html_url,
-                    stargazers_count,
-                    description,
-                    created_at,
-                    updated_at,
-                }));
+                const items: IRepo[] = result.data.items.map((
+                    {
+                        id,
+                        name,
+                        owner,
+                        html_url,
+                        stargazers_count,
+                        description,
+                        created_at,
+                        updated_at,
+                        language
+                    }: IGithubResponse
+                ) => {
+                    if (typeof language === 'string' && !languages.includes(language)) {
+                        languages.push(language)
+                        setLanguages(languages);
+                    }
+
+                    return {
+                        id,
+                        name,
+                        owner,
+                        html_url,
+                        stargazers_count,
+                        description,
+                        created_at,
+                        updated_at,
+                        language
+                    };
+                });
 
                 setRepos(items);
             } catch (error) {
@@ -98,6 +114,14 @@ export const RepoProvider = ({ children }: Props) => {
         };
     }, []);
 
+    const filterByLanguage = (language: string | number | boolean | (string | number | boolean)[] | undefined) => {
+        if (language === '') {
+            return repos;
+        }
+
+        return repos.filter(repo => repo.language === language);
+    };
+
     const addStar = (repo: IRepo) => {
         starred[repo.id] = repo;
         setStarred({...starred});
@@ -118,9 +142,11 @@ export const RepoProvider = ({ children }: Props) => {
         <RepoContext.Provider
             value={{
                 repos,
+                languages,
                 loading,
                 weekStart,
                 starred,
+                filterByLanguage,
                 addStar,
                 removeStar,
                 isStarred

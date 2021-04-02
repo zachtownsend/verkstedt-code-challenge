@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Container, Segment } from 'semantic-ui-react'
+import { Container } from 'semantic-ui-react'
 import RepoGrid from '../components/RepoGrid';
 import RepoContext from '../contexts/RepoContext';
 

@@ -77,7 +77,7 @@ export interface IGithubResponse {
     size: number;
     stargazers_count: number;
     watchers_count: number;
-    language?: any;
+    language: null | string;
     has_issues: boolean;
     has_projects: boolean;
     has_downloads: boolean;
@@ -111,6 +111,7 @@ export interface IRepo {
     description: string;
     created_at: string;
     updated_at: string;
+    language?: null | string;
 }
 
 export interface IStarred {
