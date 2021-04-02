@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Container, Segment } from 'semantic-ui-react'
+import { Container, Dimmer, Loader } from 'semantic-ui-react'
 import RepoGrid from '../components/RepoGrid';
 import RepoContext from '../contexts/RepoContext';
 
@@ -12,8 +12,9 @@ export const Home = (props: Props) => {
 
     return (
         <Container>
-            <h1>Home</h1>
-            <Segment size="massive" loading={loading} content={<RepoGrid repos={repos} />} />
+            <Container fluid>
+                {loading ? <Loader inline='centered' active={true} /> : <RepoGrid repos={repos} />}
+            </Container>
         </Container>
     )
 }

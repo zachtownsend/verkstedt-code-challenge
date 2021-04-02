@@ -14,8 +14,9 @@ export const Starred = (props: Props) => {
 
     return (
         <Container>
-            <h1>Starred</h1>
-            <Segment size="massive" content={<RepoGrid repos={repos} />} />
+            <Container fluid>
+                <RepoGrid repos={repos} />
+            </Container>
         </Container>
     )
 }

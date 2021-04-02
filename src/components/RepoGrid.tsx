@@ -1,15 +1,36 @@
 import React, { useContext } from 'react'
-import { Card, Divider, Button, Label, Icon } from 'semantic-ui-react';
+import { Card, Divider, Button, Label, Icon, Segment, Header } from 'semantic-ui-react';
 import TextTruncate from 'react-text-truncate';
 import { IRepo } from '../types';
 import RepoContext from '../contexts/RepoContext';
 
 interface Props {
     repos: Array<IRepo>;
+    emptyMessage: string;
 }
 
-const RepoGrid = ({ repos }: Props) => {
-    const { addStar, removeStar, isStarred, starred } = useContext(RepoContext);
+const DefaultProps: Props = {
+    repos: [],
+    emptyMessage: 'Sorry, no repos here!'
+};
+
+const EmptyMessage = ({ message }:  { message: string }) => {
+    return (
+        <Segment placeholder>
+            <Header icon>
+            <Icon name='star' />
+            {message}
+            </Header>
+        </Segment>
+    );
+};
+
+const RepoGrid = ({ repos, emptyMessage }: Props) => {
+    const { addStar, removeStar, starred } = useContext(RepoContext);
+
+    if (repos.length === 0) {
+        return <EmptyMessage message={emptyMessage} />;
+    }
 
     return (
         <Card.Group>
@@ -20,16 +41,18 @@ const RepoGrid = ({ repos }: Props) => {
                     <Card key={repo.id}>
                         <Card.Content>
                             <Card.Header as="h3">
-                                <TextTruncate line={2} text={repo.name} />
+                                <a href={repo.html_url} target="_blank" rel="noreferrer">
+                                    <TextTruncate line={2} text={repo.name} />
+                                </a>
                             </Card.Header>
                             <Card.Meta>{repo.owner.login}</Card.Meta>
                             <Divider />
                             <Card.Description>
-                                <p><TextTruncate line={4} text={repo.description} element="div" /></p>
+                                <TextTruncate line={4} text={repo.description} element="div" />
                             </Card.Description>
                         </Card.Content>
                         <Card.Content extra>
-                            <Button as='div' labelPosition='right'>
+                            <Button as='div' labelPosition='left'>
                                 <Label>
                                     {repo.stargazers_count}
                                 </Label>
@@ -44,5 +67,7 @@ const RepoGrid = ({ repos }: Props) => {
         </Card.Group>
     )
 }
+
+RepoGrid.defaultProps = DefaultProps;
 
 export default RepoGrid;

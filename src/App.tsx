@@ -13,7 +13,7 @@ import 'semantic-ui-css/semantic.min.css'
 import { RepoProvider } from './contexts/RepoContext';
 
 const Main = styled.main`
-  padding-top: 60px;
+  padding-top: 84px;
   width: 100%;
   min-height: 100vw;
 `;
