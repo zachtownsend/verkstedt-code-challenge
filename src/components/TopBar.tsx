@@ -22,6 +22,25 @@ const Header = styled.header`
 
 const NavContainer = styled(Container)`
     height: 100%;
+    display: flex;
+`;
+
+const NavWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+`;
+
+const PageTitle = styled.h1`
+    height: 100%;
+    margin: 0 12px 0 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+
+    @media screen and (min-width: 590px) {
+        font-size: 24px;
+    }
 `;
 
 const Nav = styled.nav`
@@ -48,10 +67,13 @@ export const TopBar = (props: Props) => {
     return (
         <Header>
             <NavContainer>
-                <Nav>
-                    <NavLink to="/">Home</NavLink>
-                    <NavLink to="/starred">Starred</NavLink>
-                </Nav>
+                <NavWrapper>
+                    <PageTitle>Verkstedt Code Challenge</PageTitle>
+                    <Nav>
+                        <NavLink to="/">Home</NavLink>
+                        <NavLink to="/starred">Starred</NavLink>
+                    </Nav>
+                </NavWrapper>
             </NavContainer>
         </Header>
     )
