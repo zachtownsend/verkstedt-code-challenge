@@ -33,7 +33,7 @@ const RepoGrid = ({ repos, emptyMessage }: Props) => {
     }
 
     return (
-        <Card.Group>
+        <Card.Group data-testid="repo-cards">
             {repos.map((repo) => {
                 const activeStar = starred[repo.id] !== undefined;
 
@@ -41,14 +41,14 @@ const RepoGrid = ({ repos, emptyMessage }: Props) => {
                     <Card key={repo.id}>
                         <Card.Content>
                             <Card.Header as="h3">
-                                <a href={repo.html_url} target="_blank" rel="noreferrer">
-                                    <TextTruncate line={2} text={repo.name} />
+                                <a href={repo.html_url} target="_blank" rel="noreferrer" data-testid={`title-${repo.id}`}>
+                                    {repo.name}
                                 </a>
                             </Card.Header>
-                            <Card.Meta>{repo.owner.login}</Card.Meta>
+                            <Card.Meta data-testid={`owner-${repo.id}`}>{repo.owner.login}</Card.Meta>
                             <Divider />
                             <Card.Description>
-                                <TextTruncate line={4} text={repo.description} element="div" />
+                                <TextTruncate line={4} text={repo.description} element="div" truncateText="…" />
                             </Card.Description>
                             {repo.language && <p>{repo.language}</p>}
                         </Card.Content>
