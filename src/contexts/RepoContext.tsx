@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios, { AxiosRequestConfig } from 'axios';
 import { IRepo, IGithubResponse, IStarred } from '../types';
@@ -9,6 +9,7 @@ interface ContextProps {
     loading: boolean;
     weekStart: any;
     starred: IStarred;
+    fetchRepos(): void;
     filterByLanguage(language: string): IRepo[];
     addStar(repo: IRepo): void;
     removeStar(id: number): void;
@@ -21,6 +22,7 @@ const RepoContext = createContext<ContextProps>({
     loading: true,
     weekStart: dayjs().subtract(7, 'day'),
     starred: {},
+    fetchRepos: () => {},
     filterByLanguage: () => [],
     addStar: () => {},
     removeStar: () => {},
@@ -31,9 +33,25 @@ interface Props {
     children: ReactNode;
 }
 
+export const bootstrapStars = (): IStarred => {
+    const storedStars = localStorage.getItem('starred');
+
+    if (storedStars !== null ) {
+        const restoredStars = JSON.parse(storedStars);
+
+        if (Array.isArray(restoredStars) && restoredStars.length === 0) {
+            return {};
+        } else {
+            return restoredStars;
+        }
+    }
+
+    return {};
+}
+
 export const RepoProvider = ({ children }: Props) => {
     const [repos, setRepos] = useState<Array<IRepo> | []>([]);
-    const [starred, setStarred] = useState<IStarred>({});
+    const [starred, setStarred] = useState<IStarred>(bootstrapStars());
     const [loading, setLoading] = useState<boolean>(true);
     const [languages, setLanguages] = useState<Array<string>>([]);
     const weekStart = dayjs().subtract(7, 'day');
@@ -48,52 +66,47 @@ export const RepoProvider = ({ children }: Props) => {
         }
     }), [weekStart]);
 
-    useEffect(() => {
-        // Fetch repos
-        const fetchRepos = async () => {
-            try {
-                const result = await axios(requestOptions);
-                const items: IRepo[] = result.data.items.map((
-                    {
-                        id,
-                        name,
-                        owner,
-                        html_url,
-                        stargazers_count,
-                        description,
-                        created_at,
-                        updated_at,
-                        language
-                    }: IGithubResponse
-                ) => {
-                    if (typeof language === 'string' && !languages.includes(language)) {
-                        languages.push(language)
-                        setLanguages(languages);
-                    }
+    const fetchRepos = async () => {
+        try {
+            const result = await axios(requestOptions);
+            const items: IRepo[] = result.data.items.map((
+                {
+                    id,
+                    name,
+                    owner,
+                    html_url,
+                    stargazers_count,
+                    description,
+                    created_at,
+                    updated_at,
+                    language
+                }: IGithubResponse
+            ) => {
+                if (typeof language === 'string' && !languages.includes(language)) {
+                    languages.push(language)
+                    setLanguages(languages);
+                }
 
-                    return {
-                        id,
-                        name,
-                        owner,
-                        html_url,
-                        stargazers_count,
-                        description,
-                        created_at,
-                        updated_at,
-                        language
-                    };
-                });
+                return {
+                    id,
+                    name,
+                    owner,
+                    html_url,
+                    stargazers_count,
+                    description,
+                    created_at,
+                    updated_at,
+                    language
+                };
+            });
 
-                setRepos(items);
-            } catch (error) {
-                console.error({ error });
-            }
+            setRepos(items);
+        } catch (error) {
+            // console.error({ error });
+        }
 
-            setLoading(false);
-        };
-
-        fetchRepos();
-    }, []);
+        setLoading(false);
+    };
 
     useEffect(() => {
         // Bootstrap starred
@@ -146,6 +159,7 @@ export const RepoProvider = ({ children }: Props) => {
                 loading,
                 weekStart,
                 starred,
+                fetchRepos,
                 filterByLanguage,
                 addStar,
                 removeStar,
