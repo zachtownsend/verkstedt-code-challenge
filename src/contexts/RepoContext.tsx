@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useState, useMemo, ReactNode } from 'react';
 import dayjs from 'dayjs';
 import axios, { AxiosRequestConfig } from 'axios';
 import { IRepo, IGithubResponse, IStarred } from '../types';
@@ -107,25 +107,6 @@ export const RepoProvider = ({ children }: Props) => {
 
         setLoading(false);
     };
-
-    useEffect(() => {
-        // Bootstrap starred
-        const storedStars = localStorage.getItem('starred');
-
-        if (storedStars !== null ) {
-            const restoredStars = JSON.parse(storedStars);
-
-            if (Array.isArray(restoredStars) && restoredStars.length === 0) {
-                setStarred({});
-            } else {
-                setStarred(restoredStars);
-            }
-        }
-
-        return () => {
-            localStorage.setItem('starred', JSON.stringify(starred));
-        };
-    }, []);
 
     const filterByLanguage = (language: string | number | boolean | (string | number | boolean)[] | undefined) => {
         if (language === '') {
