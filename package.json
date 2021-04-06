@@ -1,6 +1,6 @@
 {
   "name": "verkstedt-code-challenge",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": false,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",

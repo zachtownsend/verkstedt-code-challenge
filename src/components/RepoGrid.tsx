@@ -36,6 +36,7 @@ const RepoGrid = ({ repos, emptyMessage }: Props) => {
         <Card.Group data-testid="repo-cards">
             {repos.map((repo) => {
                 const activeStar = starred[repo.id] !== undefined;
+                const totalStars = activeStar ? repo.stargazers_count + 1 : repo.stargazers_count;
 
                 return (
                     <Card key={repo.id}>
@@ -55,7 +56,7 @@ const RepoGrid = ({ repos, emptyMessage }: Props) => {
                         <Card.Content extra>
                             <Button as='div' labelPosition='left'>
                                 <Label>
-                                    {repo.stargazers_count}
+                                    {totalStars}
                                 </Label>
                                 <Button icon onClick={() => activeStar ? removeStar(repo.id) : addStar(repo)}>
                                     <Icon name={activeStar ? 'star' : 'star outline' } />
